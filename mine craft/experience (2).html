@@ -95,6 +95,36 @@
   .areas li { font-size: 19px; line-height:1.65; color:#dcd6c4; }
   .areas li::marker { color:#6fae44; }
 
+  /* Achievement pop-up cards (replacing plain bullets) */
+  .ach {
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(90deg, rgba(30,30,30,0.85), rgba(40,40,40,0.6));
+    border: 2px solid #6b6b6b; border-left: 5px solid #ffd23f;
+    padding: 10px 14px; margin-bottom: 10px; border-radius: 3px;
+    opacity: 0; transform: translateX(-40px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    font-size: 17px; color: #dcd6c4;
+  }
+  .ach.visible { opacity: 1; transform: translateX(0); }
+  .ach .ach-icon {
+    flex: 0 0 auto; width: 38px; height: 38px; display:flex; align-items:center; justify-content:center;
+    font-size: 20px; background: rgba(0,0,0,0.4); border: 2px solid #ffd23f;
+  }
+  .ach .ach-text { display: flex; flex-direction: column; }
+  .ach .ach-title { font-family:'Press Start 2P', monospace; font-size: 10px; color: #ffd23f; margin-bottom: 4px; }
+
+  /* Joke RPG stat bars */
+  .stat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-label { font-size: 18px; min-width: 220px; }
+  .stat-track { flex: 1; min-width: 140px; height: 16px; background: rgba(0,0,0,0.4); border: 2px solid #6b6b6b; }
+  .stat-fill { height: 100%; width: 0%; transition: width 1.4s cubic-bezier(0.2,0.8,0.2,1); }
+
+  .quest { position: relative; cursor: pointer; }
+  .quest-tag {
+    margin-top: 14px; font-family:'Press Start 2P', monospace; font-size: 10px; color: #ffd23f;
+    border-top: 2px dashed rgba(255,255,255,0.25); padding-top: 12px;
+  }
+
   .card {
     background: rgba(20,22,18,0.55);
     border: 3px solid rgba(255,255,255,0.25);
@@ -145,13 +175,28 @@
     </div>
 
     <div class="panel">
-      <div class="section-label">Key areas of experience</div>
-      <ul class="areas">
-        <li>Developing applications with Python, Java, JavaScript and web technologies</li><li>Building AI-powered automation workflows using n8n</li><li>Working with MongoDB for application data and database design</li><li>Developing Android applications with Android Studio</li><li>Exploring computer vision using OpenCV and MediaPipe</li><li>Creating interactive and animated web interfaces</li><li>Using Git and GitHub for project development and portfolio management</li><li>Exploring RAG, embeddings, AI agents and modern AI application architectures</li>
-      </ul>
+      <div class="section-label">🏆 Achievements Unlocked</div>
+      <div id="achievements">
+        <div class="ach" data-icon="🐍" data-title="Polyglot Programmer">Developing applications with Python, Java, JavaScript and web technologies</div>
+        <div class="ach" data-icon="🤖" data-title="Robot Wrangler">Building AI-powered automation workflows using n8n</div>
+        <div class="ach" data-icon="🍃" data-title="Leaf-Node Whisperer">Working with MongoDB for application data and database design</div>
+        <div class="ach" data-icon="📱" data-title="Pocket Dimension Builder">Developing Android applications with Android Studio</div>
+        <div class="ach" data-icon="👁️" data-title="All-Seeing Eye">Exploring computer vision using OpenCV and MediaPipe</div>
+        <div class="ach" data-icon="✨" data-title="Animation Alchemist">Creating interactive and animated web interfaces</div>
+        <div class="ach" data-icon="🐙" data-title="Version Control Villager">Using Git and GitHub for project development and portfolio management</div>
+        <div class="ach" data-icon="🧠" data-title="Big Brain Energy">Exploring RAG, embeddings, AI agents and modern AI application architectures</div>
+      </div>
     </div>
 
-    <div class="card">
+    <div class="panel">
+      <div class="section-label">📊 Player Stats (100% scientifically inaccurate)</div>
+      <div class="stat-row"><span class="stat-label">☕ Coffee Dependency</span><div class="stat-track"><div class="stat-fill" data-target="97" style="background:#c47a3d;"></div></div></div>
+      <div class="stat-row"><span class="stat-label">🐛 Debugging Rage</span><div class="stat-track"><div class="stat-fill" data-target="82" style="background:#c4453d;"></div></div></div>
+      <div class="stat-row"><span class="stat-label">🔍 Stack Overflow Reflexes</span><div class="stat-track"><div class="stat-fill" data-target="93" style="background:#3d8ec4;"></div></div></div>
+      <div class="stat-row"><span class="stat-label">🌙 3AM "Just One More Bug" Energy</span><div class="stat-track"><div class="stat-fill" data-target="100" style="background:#8e3dc4;"></div></div></div>
+    </div>
+
+    <div class="card quest" id="questCard">
       <div class="card-head">
         <div class="slot">🎓</div>
         <h2>Academic &amp; Technical Projects</h2>
@@ -159,6 +204,7 @@
       </div>
       <p>Developing academic and personal projects across software development, IoT, Android, databases, web technologies and AI.</p>
       <p>Through these projects, I've gained practical experience in understanding requirements, designing solutions, implementing features, debugging applications, and presenting technical concepts.</p>
+      <div class="quest-tag">⚔️ ACTIVE QUEST — Reward: +9999 XP — <span style="text-decoration:underline; cursor:pointer;">Claim</span></div>
     </div>
 
     <div style="text-align:center; margin-top: 26px;">
@@ -188,6 +234,85 @@
       requestAnimationFrame(() => {
         document.querySelectorAll('.word').forEach(w => w.classList.add('visible'));
       });
+    });
+
+    // Tiny synthesized "ding"/chime sounds, no audio files needed
+    let audioCtx;
+    function beep(freq, duration, type, startGain, sweepTo) {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (sweepTo) osc.frequency.exponentialRampToValueAtTime(sweepTo, audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(startGain, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+    function ding() { beep(880, 0.12, 'sine', 0.06, 1200); }
+    function levelUpChime() { beep(523, 0.12, 'sine', 0.08, 660); setTimeout(() => beep(784, 0.18, 'sine', 0.08, 1046), 100); }
+
+    // Build achievement cards from the plain .ach divs, reveal on scroll with a ding
+    document.querySelectorAll('.ach').forEach(el => {
+      const icon = el.dataset.icon;
+      const title = el.dataset.title;
+      const text = el.textContent;
+      el.innerHTML = `<div class="ach-icon">${icon}</div><div class="ach-text"><span class="ach-title">Achievement Get: ${title}</span>${text}</div>`;
+    });
+    const achEls = document.querySelectorAll('.ach');
+    const achIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !e.target.classList.contains('visible')) {
+          e.target.classList.add('visible');
+          ding();
+        }
+      });
+    }, { threshold: 0.4 });
+    achEls.forEach(el => achIO.observe(el));
+
+    // Animate the joke stat bars once visible
+    const statFills = document.querySelectorAll('.stat-fill');
+    const statIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.width = e.target.dataset.target + '%';
+          statIO.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    statFills.forEach(f => statIO.observe(f));
+
+    // Quest card: click for a level-up chime + confetti burst
+    function spawnConfetti() {
+      const colors = ['#ffcc00', '#ff5577', '#55ccff', '#77ff77', '#ffffff', '#cc88ff'];
+      for (let i = 0; i < 50; i++) {
+        const c = document.createElement('div');
+        c.style.position = 'fixed';
+        c.style.left = (Math.random() * 100) + 'vw';
+        c.style.top = '-10px';
+        c.style.width = '8px'; c.style.height = '8px';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.zIndex = '62';
+        c.style.pointerEvents = 'none';
+        const dx = (Math.random() * 200 - 100) + 'px';
+        const dy = (window.innerHeight + 40) + 'px';
+        const rot = (Math.random() * 720 - 360) + 'deg';
+        c.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${dx}, ${dy}) rotate(${rot})`, opacity: 0 }
+        ], { duration: 1300 + Math.random() * 400, easing: 'ease-in' });
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 1800);
+      }
+    }
+    document.getElementById('questCard').addEventListener('click', () => {
+      levelUpChime();
+      spawnConfetti();
+      const tag = document.querySelector('.quest-tag');
+      tag.textContent = '✅ QUEST COMPLETE — +9999 XP claimed!';
     });
   </script>
 

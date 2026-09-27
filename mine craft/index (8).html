@@ -198,6 +198,9 @@
     bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: calc(100vw - 32px);
     z-index: 15;
   }
   .toolbar-btn {
@@ -213,8 +216,20 @@
     box-shadow: 0 4px 0 rgba(0,0,0,0.4);
     transition: transform 0.08s ease, background 0.15s ease;
   }
-  .toolbar-btn:hover { background: rgba(60,60,60,0.85); }
-  .toolbar-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+  .toolbar-btn:hover { background: rgba(60,60,60,0.85); animation: wiggle 0.4s ease-in-out infinite; }
+  .toolbar-btn:active { transform: translateY(3px) rotate(0deg) !important; box-shadow: 0 1px 0 rgba(0,0,0,0.4); animation: none; }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-8deg) scale(1.05); }
+    50% { transform: rotate(8deg) scale(1.1); }
+  }
+  .toolbar-btn.launching {
+    animation: launch 0.6s ease-in forwards;
+  }
+  @keyframes launch {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    40%  { transform: translateY(-14px) rotate(-15deg) scale(1.2); }
+    100% { transform: translateY(-140px) rotate(380deg) scale(0.3); opacity: 0; }
+  }
 
   .toast {
     position: fixed;
@@ -263,6 +278,9 @@
   <div class="toolbar">
     <button class="toolbar-btn" id="btn-github" aria-label="GitHub" title="GitHub">🐙</button>
     <button class="toolbar-btn" id="btn-reviews" aria-label="Reviews" title="Reviews">⭐</button>
+    <button class="toolbar-btn" id="btn-discord" aria-label="Discord" title="Discord">💬</button>
+    <button class="toolbar-btn" id="btn-linkedin" aria-label="LinkedIn" title="LinkedIn">💼</button>
+    <button class="toolbar-btn" id="btn-instagram" aria-label="Instagram" title="Instagram">📸</button>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -294,17 +312,17 @@
         spawnBlockBurst(e.clientX, e.clientY);
 
         if (btn.id === 'btn-about') {
-          window.open('about (4).html', '_blank', 'noopener');
+          window.open('about.html', '_blank', 'noopener');
           return;
         }
 
         if (btn.id === 'btn-projects') {
-          window.open('projects (1).html', '_blank', 'noopener');
+          window.open('projects.html', '_blank', 'noopener');
           return;
         }
 
         if (btn.id === 'btn-experience') {
-          window.open('experience (2).html', '_blank', 'noopener');
+          window.open('experience.html', '_blank', 'noopener');
           return;
         }
 
@@ -471,7 +489,16 @@
       }
     });
     document.getElementById('btn-reviews').addEventListener('click', () => {
-      window.open('reviews (1).html', '_blank', 'noopener');
+      window.open('reviews.html', '_blank', 'noopener');
+    });
+    document.getElementById('btn-discord').addEventListener('click', () => {
+      window.open('https://discord.gg/PdHC5tApW', '_blank', 'noopener');
+    });
+    document.getElementById('btn-linkedin').addEventListener('click', () => {
+      window.open('https://www.linkedin.com/in/ayushi-sindha-2094343a4', '_blank', 'noopener');
+    });
+    document.getElementById('btn-instagram').addEventListener('click', () => {
+      window.open('https://www.instagram.com/itzonlyayyu_04/', '_blank', 'noopener');
     });
 
     // Twinkling stars scattered over the sky (upper ~45% of the image)
